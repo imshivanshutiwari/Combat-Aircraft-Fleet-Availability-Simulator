@@ -186,12 +186,22 @@ The **Flight Operations Center** has been upgraded with a high-visibility premiu
 
 ## 🛠️ Installation & Launch
 
-### 🚀 One-Click Launch (Docker)
+### 🌐 Streamlit Community Cloud (Hosted)
+To host this immediately on Streamlit Community Cloud for free:
+1. Push this repository to your GitHub account.
+2. Go to [share.streamlit.io](https://share.streamlit.io/) and click **New App**.
+3. Select your repository and branch.
+4. Set the **Main file path** to: `fleet-dashboard/app.py`
+5. Click **Deploy**. The platform will automatically install dependencies from `requirements.txt` and launch the Universal Master Dashboard.
+
+---
+
+### 🚀 One-Click Launch (Docker Local)
 **Windows (PowerShell):** `.\launch_mission.ps1`
 **Linux/macOS:** `./launch_mission.sh`
 
-### 🐍 Developer Setup
-`pip install -r requirements_deploy.txt`
+### 🐍 Developer Setup (Python Local)
+`pip install -r requirements.txt`
 `streamlit run fleet-dashboard/app.py`
 
 ---
