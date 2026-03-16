@@ -317,7 +317,20 @@ def run_single(fleet_size=12, o_techs=8, i_techs=4, d_techs=6,
     for ac in fleet:
         env.process(lifecycle(ac))
 
-    env.run(until=sim_days * HOURS_PER_DAY)
+    try:
+        env.run(until=sim_days * HOURS_PER_DAY)
+    except Exception as e:
+        import traceback
+        import os
+        error_detail = f"\n\n### 🚨 SIMULATION CRASH DETECTED\n- **Error**: {str(e)}\n- **Traceback**:\n```python\n{traceback.format_exc()}\n```\n"
+        # Log to project.md so the user/agent can see it even if Streamlit redacts it
+        project_path = os.path.join(os.path.dirname(__file__), '..', '..', 'project.md')
+        try:
+            with open(project_path, 'a') as f:
+                f.write(error_detail)
+        except:
+            pass # Fallback if path discovery fails
+        raise e
 
     df = pd.DataFrame(kpi_records)
     post_warmup = df[df['time'] >= warm_up_h]
