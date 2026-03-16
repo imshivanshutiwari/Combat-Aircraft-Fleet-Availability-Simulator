@@ -43,7 +43,8 @@ st.sidebar.markdown("""
 st.sidebar.markdown("#### SIMULATION PARAMETERS")
 
 use_real_data = st.sidebar.toggle("NASA C-MAPSS Data Params", value=False)
-use_ai_predictions = st.sidebar.toggle("AI Predictive Engine (ML)", value=False)
+model_type = st.sidebar.selectbox("Predictive AI Model", ["Standard", "Elite (LSTM)", "SOTA (Transformer)"], index=1)
+use_ai_predictions = st.sidebar.toggle("Activate AI Core", value=True)
 fleet_size = st.sidebar.slider("Fleet Size", 4, 24, 12, 2)
 sim_days = st.sidebar.slider("Simulation Days", 90, 365, 180)
 sortie_interval = st.sidebar.slider("Sortie Interval (hrs)", 18, 72, 48)
@@ -106,6 +107,7 @@ with st.spinner("Running simulation..."):
         seed=random_seed,
         use_real_data=use_real_data,
         use_ai_predictions=use_ai_predictions,
+        model_type=model_type,
     )
 
 # Run Monte Carlo
@@ -125,6 +127,7 @@ if run_button or 'mc_df' in st.session_state:
                 seed=random_seed,
                 use_real_data=use_real_data,
                 use_ai_predictions=use_ai_predictions,
+                model_type=model_type,
             )
             st.session_state['mc_df'] = mc_df
             st.session_state['mc_kpi_dfs'] = mc_kpi_dfs
@@ -159,9 +162,9 @@ render_kpi_strip(result['mcr'], result['fmcr'],
                  mcr_ci_hw, fmcr_ci_hw, fleet_summary)
 
 # ── TABS ────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "FLEET STATUS", "TIME SERIES", "SENSITIVITY",
-    "SURGE ANALYSIS", "RESEARCH", "REAL DATA", "AI OPTIMIZATION", "REPORT & EXPORT",
+    "SURGE ANALYSIS", "RESEARCH", "REAL DATA", "AI OPTIMIZATION", "ELITE BENCHMARKING", "REPORT & EXPORT",
 ])
 
 # ── TAB 1: FLEET STATUS ────────────────────────────────────────────
@@ -368,8 +371,13 @@ with tab7:
     }
     render_optimization_tab(sim_params)
 
-# ── TAB 8: REPORT & EXPORT ─────────────────────────────────────────
+# ── TAB 8: ELITE BENCHMARKING ──────────────────────────────────────
 with tab8:
+    from components.benchmarking_view import render_benchmarking_tab
+    render_benchmarking_tab()
+
+# ── TAB 9: REPORT & EXPORT ─────────────────────────────────────────
+with tab9:
     from utils.report_generator import render_executive_summary
     from utils.export_handler import render_export_panel
 

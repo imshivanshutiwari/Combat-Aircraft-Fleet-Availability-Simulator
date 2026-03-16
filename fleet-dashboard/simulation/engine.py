@@ -40,9 +40,10 @@ INVENTORY_PARAMS = {
 
 
 class Subsystem:
-    def __init__(self, name, beta, eta, rng, use_ai_predictions=False):
+    def __init__(self, name, beta, eta, rng, use_ai_predictions=False, model_type='Elite (LSTM)'):
         self.name, self.beta, self.eta, self.rng = name, beta, eta, rng
         self.use_ai = use_ai_predictions
+        self.model_type = model_type.split(' ')[0] # Extract 'Elite' or 'Standard' or 'SOTA'
         self.health = 1.0
         self.hours = 0.0
         self.ttf = weibull_rvs(beta, eta, rng)
@@ -69,9 +70,10 @@ class Subsystem:
             if len(self.sensor_history) > self.seq_len:
                 self.sensor_history.pop(0)
             
-            # Predict RUL; only if we have enough history for the LSTM
+            # Predict RUL; only if we have enough history for the LSTM/Transformer
             if len(self.sensor_history) == self.seq_len:
-                pred_rul = predict_rul(self.sensor_history)[0]
+                m_type = 'LSTM' if 'Elite' in self.model_type else ('Transformer' if 'SOTA' in self.model_type else 'Standard')
+                pred_rul = predict_rul(self.sensor_history, model_type=m_type)[0]
                 if pred_rul <= 0:
                     self.failed = True
                     self.tier = 'D' if self.health < 0.4 else ('I' if self.health < 0.7 else 'O')
@@ -96,10 +98,10 @@ class Subsystem:
 
 
 class Aircraft:
-    def __init__(self, aid, rng, sys_params=None, use_ai_predictions=False):
+    def __init__(self, aid, rng, sys_params=None, use_ai_predictions=False, **kwargs):
         self.id, self.rng = aid, rng
         params = sys_params if sys_params else SUBSYSTEM_PARAMS
-        self.subs = {n: Subsystem(n, p['beta'], p['eta'], rng, use_ai_predictions)
+        self.subs = {n: Subsystem(n, p['beta'], p['eta'], rng, use_ai_predictions, kwargs.get('model_type', 'Elite'))
                      for n, p in params.items()}
         self.status = 'FMC'
         self.hours, self.sorties = 0.0, 0
@@ -228,7 +230,7 @@ class Maintenance:
 def run_single(fleet_size=12, o_techs=8, i_techs=4, d_techs=6,
                sortie_interval=48.0, sim_days=180,
                surge_start=None, surge_dur=None, seed=42,
-               use_real_data=False, use_ai_predictions=False):
+               use_real_data=False, use_ai_predictions=False, model_type='Elite (LSTM)'):
     """
     Run one complete simulation.
 
@@ -245,7 +247,7 @@ def run_single(fleet_size=12, o_techs=8, i_techs=4, d_techs=6,
         from data.cmapss_loader import fit_subsystem_params
         sys_params = fit_subsystem_params('FD001')
         
-    fleet = [Aircraft(i, rng, sys_params=sys_params, use_ai_predictions=use_ai_predictions) 
+    fleet = [Aircraft(i, rng, sys_params=sys_params, use_ai_predictions=use_ai_predictions, model_type=model_type) 
              for i in range(fleet_size)]
     inv = Inventory(env, rng)
     surge_start_h = (surge_start * HOURS_PER_DAY) if surge_start else float('inf')
