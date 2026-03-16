@@ -1,0 +1,82 @@
+{
+    "F-35A Lightning II": {
+        "source": "GAO-23-105341",
+        "goals": {
+            "mcr": 80.0,
+            "fmcr": 70.0
+        },
+        "actuals": {
+            "mcr": 54.0,
+            "fmcr": 45.0
+        },
+        "nmc_breakdown": {
+            "nmc_m": 25.0,
+            "nmc_p": 16.0,
+            "nmc_d": 5.0
+        }
+    },
+    "F-22 Raptor": {
+        "source": "GAO-21-101sp",
+        "goals": {
+            "mcr": 75.0,
+            "fmcr": 60.0
+        },
+        "actuals": {
+            "mcr": 51.0,
+            "fmcr": 42.0
+        },
+        "nmc_breakdown": {
+            "nmc_m": 30.0,
+            "nmc_p": 11.0,
+            "nmc_d": 8.0
+        }
+    },
+    "F-15E Strike Eagle": {
+        "source": "GAO-21-101sp",
+        "goals": {
+            "mcr": 75.0,
+            "fmcr": 65.0
+        },
+        "actuals": {
+            "mcr": 71.0,
+            "fmcr": 55.0
+        },
+        "nmc_breakdown": {
+            "nmc_m": 15.0,
+            "nmc_p": 9.0,
+            "nmc_d": 5.0
+        }
+    },
+    "F-16 Fighting Falcon": {
+        "source": "GAO-21-101sp",
+        "goals": {
+            "mcr": 80.0,
+            "fmcr": 70.0
+        },
+        "actuals": {
+            "mcr": 73.0,
+            "fmcr": 60.0
+        },
+        "nmc_breakdown": {
+            "nmc_m": 12.0,
+            "nmc_p": 10.0,
+            "nmc_d": 5.0
+        }
+    },
+    "AH-64 Apache": {
+        "source": "GAO-21-101sp",
+        "goals": {
+            "mcr": 75.0,
+            "fmcr": 60.0
+        },
+        "actuals": {
+            "mcr": 69.0,
+            "fmcr": 55.0
+        },
+        "nmc_breakdown": {
+            "nmc_m": 18.0,
+            "nmc_p": 8.0,
+            "nmc_d": 5.0
+        }
+    }
+}

@@ -1,0 +1,9 @@
+aircraft_type,source,year,mcr_mean,mcr_low,mcr_high,fmcr_mean,fleet_size,maintenance_man_hours_per_flight_hour
+F-16,GAO-21-279,2020,0.719,0.65,0.78,0.55,936,18.5
+F-35A,GAO-21-279,2020,0.546,0.48,0.62,0.40,283,41.0
+F/A-18E/F,GAO-21-279,2020,0.621,0.55,0.70,0.48,538,24.2
+MiG-21,CAG-India-2021,2021,0.75,0.70,0.80,0.60,120,22.0
+Mirage-2000,CAG-India-2021,2021,0.78,0.73,0.83,0.63,49,20.5
+Su-30MKI,CAG-India-2021,2021,0.72,0.65,0.78,0.55,272,30.0
+Jaguar,CAG-India-2021,2021,0.70,0.62,0.76,0.52,128,25.0
+Rafale,CAG-India-2021,2021,0.82,0.78,0.88,0.70,36,15.0

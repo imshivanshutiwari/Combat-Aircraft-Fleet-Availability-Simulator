@@ -1,0 +1,8 @@
+{
+  "timestamp": null,
+  "calibrated_parameters": null,
+  "ks_statistic": null,
+  "p_value": null,
+  "interpretation": null,
+  "notes": "Placeholder — run Notebook 06 or DataCalibrator.save_calibration_results() to populate."
+}
