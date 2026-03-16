@@ -50,9 +50,8 @@ def main():
     # Create renderer (initialises pygame in main thread)
     renderer = Renderer()
     
-    bridge_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared_bridge.json')
-    last_processed_timestamp = 0
-    last_mtime = 0
+    from engine.zmq_bridge import CommandSubscriber
+    bridge_sub = CommandSubscriber()
 
     # Main event loop
     running = True
@@ -124,32 +123,20 @@ def main():
         else:
             renderer.controls.handle_event(mouse_pos, False)
 
-        # ── BRIDGE POLLING ────────────────────────────────────────────────
-        try:
-            if os.path.exists(bridge_path):
-                current_mtime = os.path.getmtime(bridge_path)
-                if current_mtime > last_mtime:
-                    last_mtime = current_mtime
-                    with open(bridge_path, 'r') as f:
-                        bridge_data = json.load(f)
-                    
-                    cmd_time = bridge_data.get('timestamp', 0)
-                    if cmd_time > last_processed_timestamp:
-                        cmd = bridge_data.get('last_cmd')
-                        if cmd == 'SURGE':
-                            state.surge_active = not state.surge_active
-                            if state.surge_active:
-                                from assets.colors import EVENT_FAILURE
-                                state.add_event(state.format_sim_time(), "BRIDGE: SURGE MODE ACTIVATED", EVENT_FAILURE)
-                            else:
-                                from assets.colors import EVENT_GENERAL
-                                state.add_event(state.format_sim_time(), "BRIDGE: SURGE MODE DEACTIVATED", EVENT_GENERAL)
-                        elif cmd == 'PAUSE':
-                            state.paused = not state.paused
-                            
-                        last_processed_timestamp = cmd_time
-        except Exception:
-            pass # Ignore read/json errors if file is being written concurrently
+        # ── BRIDGE POLLING (ZMQ) ──────────────────────────────────────────
+        cmd, cmd_time = bridge_sub.check_for_command()
+        if cmd:
+            if cmd == 'SURGE':
+                state.surge_active = not state.surge_active
+                from assets.colors import EVENT_FAILURE, EVENT_GENERAL
+                if state.surge_active:
+                    state.add_event(state.format_sim_time(), "ZMQ BRIDGE: SURGE ACTIVATED", EVENT_FAILURE)
+                else:
+                    state.add_event(state.format_sim_time(), "ZMQ BRIDGE: SURGE DEACTIVATED", EVENT_GENERAL)
+            elif cmd == 'PAUSE':
+                state.paused = not state.paused
+                from assets.colors import EVENT_GENERAL
+                state.add_event(state.format_sim_time(), f"ZMQ BRIDGE: {'PAUSED' if state.paused else 'RESUMED'}", EVENT_GENERAL)
 
         # Get state snapshot and render
         snapshot = state.get_snapshot()

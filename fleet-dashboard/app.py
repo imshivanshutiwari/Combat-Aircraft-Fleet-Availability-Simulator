@@ -66,33 +66,24 @@ st.sidebar.markdown("#### MONTE CARLO")
 mc_reps = st.sidebar.slider("Replications", 10, 200, 50, 10)
 random_seed = st.sidebar.number_input("Random Seed", 1, 9999, 42)
 
-# ── PYGAME LIVE LINK ────────────────────────────────────────────────
-import json
-import time
+# ── PYGAME LIVE LINK (ZMQ) ──────────────────────────────────────────
+from utils.zmq_bridge import CommandPublisher
+
+if 'zmq_pub' not in st.session_state:
+    st.session_state['zmq_pub'] = CommandPublisher()
 
 def send_bridge_command(cmd_type):
-    bridge_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared_bridge.json')
-    try:
-        with open(bridge_path, 'r') as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = {'last_cmd': None, 'timestamp': 0}
-        
-    data['last_cmd'] = cmd_type
-    data['timestamp'] = time.time()
-    
-    with open(bridge_path, 'w') as f:
-        json.dump(data, f)
+    st.session_state['zmq_pub'].send_command(cmd_type)
 
-st.sidebar.markdown("#### PYGAME LIVE LINK")
-st.sidebar.caption("Control the separate Pygame window.")
+st.sidebar.markdown("#### PYGAME LIVE LINK (ZMQ SOCKET)")
+st.sidebar.caption("Low-latency socket bridge active.")
 c1, c2 = st.sidebar.columns(2)
 if c1.button("⚡ SURGE", use_container_width=True):
     send_bridge_command("SURGE")
-    st.sidebar.success("Surge signal sent!", icon="⚡")
+    st.sidebar.success("ZMQ: Surge sent!", icon="⚡")
 if c2.button("⏸ PAUSE", use_container_width=True):
     send_bridge_command("PAUSE")
-    st.sidebar.success("Pause signal sent!", icon="⏸")
+    st.sidebar.success("ZMQ: Pause sent!", icon="⏸")
 
 st.sidebar.markdown("---")
 

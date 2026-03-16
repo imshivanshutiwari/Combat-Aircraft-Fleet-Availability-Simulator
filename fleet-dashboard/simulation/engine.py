@@ -48,6 +48,11 @@ class Subsystem:
         self.ttf = weibull_rvs(beta, eta, rng)
         self.failed = False
         self.tier = None
+        
+        # Level 5: Deep Learning Sensor History Buffer
+        from data.ml_model import SEQUENCE_LENGTH, FEATURES_COUNT
+        self.sensor_history = []
+        self.seq_len = SEQUENCE_LENGTH
 
     def accrue(self, h):
         self.hours += h
@@ -56,16 +61,27 @@ class Subsystem:
         if getattr(self, 'use_ai', False):
             from data.ml_model import predict_rul
             # Generate simulated sensor noise based on hidden health 
-            # 14 degrading sensors, normalized [0, 1]. higher values = worse health
             deg_signal = 1.0 - self.health
-            sensor_noise = np.clip(self.rng.normal(deg_signal, 0.05, 14), 0, 1)
+            current_sensors = np.clip(self.rng.normal(deg_signal, 0.05, 14), 0, 1)
             
-            # Predict RUL; if 0 or less, subsystem fails
-            pred_rul = predict_rul(sensor_noise)[0]
-            if pred_rul <= 0:
-                self.failed = True
-                self.tier = 'D' if self.health < 0.4 else ('I' if self.health < 0.7 else 'O')
-                return True
+            # Maintain sliding window for LSTM
+            self.sensor_history.append(current_sensors)
+            if len(self.sensor_history) > self.seq_len:
+                self.sensor_history.pop(0)
+            
+            # Predict RUL; only if we have enough history for the LSTM
+            if len(self.sensor_history) == self.seq_len:
+                pred_rul = predict_rul(self.sensor_history)[0]
+                if pred_rul <= 0:
+                    self.failed = True
+                    self.tier = 'D' if self.health < 0.4 else ('I' if self.health < 0.7 else 'O')
+                    return True
+            else:
+                # Fallback to statistical TTF until buffer is full
+                if self.hours >= self.ttf:
+                    self.failed = True
+                    self.tier = 'D' if self.health < 0.4 else ('I' if self.health < 0.7 else 'O')
+                    return True
         else:
             if self.hours >= self.ttf:
                 self.failed = True

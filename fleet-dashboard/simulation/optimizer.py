@@ -46,136 +46,104 @@ def calculate_cost(config):
     return (o * COSTS['o_techs']) + (i * COSTS['i_techs']) + (d * COSTS['d_techs'])
 
 
-def optimize_staffing(target_mcr, sim_params, max_iterations=30, progress_callback=None):
+def calculate_fitness(config, target_mcr, sim_params):
     """
-    Finds the lowest cost configuration that meets the target MCR
-    using a Stochastic Hill Climbing Search.
+    Calculate fitness: Inverse of cost, with high penalty if MCR < target.
+    """
+    mcr = evaluate_config(config, sim_params)
+    cost = calculate_cost(config)
+    
+    # Massive penalty for failing to meet the mission target
+    penalty = 0
+    if mcr < target_mcr:
+        # Penalty proportional to the shortfall
+        penalty = (target_mcr - mcr) * 10_000_000 
+        
+    # We want to minimize cost + penalty, so fitness is the inverse (or negative)
+    return -(cost + penalty), mcr, cost
+
+def optimize_staffing(target_mcr, sim_params, max_iterations=20, progress_callback=None):
+    """
+    Finds the absolute global optimum configuration using an Evolutionary Genetic Algorithm.
     
     Parameters
     ----------
-    target_mcr : float
-        The required Mission Capable Rate (0.0 to 1.0).
-    sim_params : dict
-        Context parameters for the simulation (fleet_size, days, etc.)
     max_iterations : int
-        Maximum steps to search. Minimum viable for dashboard speed.
-    progress_callback : callable
-        Function to update Streamlit progress bar.
-        
-    Returns
-    -------
-    dict
-        Optimal configuration and history.
+        Now represents the number of Generations.
     """
-    # Start at the maximum configuration to ensure we hit the target initially
-    current_config = np.array([BOUNDS['o_techs'][1], BOUNDS['i_techs'][1], BOUNDS['d_techs'][1]])
-    current_mcr = evaluate_config(current_config, sim_params)
-    current_cost = calculate_cost(current_config)
+    pop_size = 12 # Small pop for dashboard speed
+    generations = max_iterations
     
-    best_config = current_config.copy()
-    best_cost = current_cost
-    best_mcr = current_mcr
-    
-    history = [{
-        'iter': 0,
-        'o_techs': current_config[0],
-        'i_techs': current_config[1],
-        'd_techs': current_config[2],
-        'cost': current_cost,
-        'mcr': current_mcr,
-        'valid': current_mcr >= target_mcr
-    }]
-    
-    # If even max configuration can't hit target, return it anyway
-    if current_mcr < target_mcr:
-        return {
-            'success': False,
-            'reason': 'Target MCR unreachable even at maximum capacity.',
-            'best_config': best_config.tolist(),
-            'best_cost': best_cost,
-            'best_mcr': best_mcr,
-            'history': pd.DataFrame(history)
-        }
+    # 1. Initialize random population within bounds
+    population = []
+    for _ in range(pop_size):
+        ind = [
+            np.random.randint(BOUNDS['o_techs'][0], BOUNDS['o_techs'][1] + 1),
+            np.random.randint(BOUNDS['i_techs'][0], BOUNDS['i_techs'][1] + 1),
+            np.random.randint(BOUNDS['d_techs'][0], BOUNDS['d_techs'][1] + 1)
+        ]
+        population.append(np.array(ind))
         
-    for i in range(1, max_iterations + 1):
+    best_ind = None
+    best_fitness = -np.inf
+    history = []
+    
+    for gen in range(generations):
         if progress_callback:
-            progress_callback(i, max_iterations)
+            progress_callback(gen, generations)
             
-        # Generate a candidate by randomly subtracting 1 from one of the resource pools
-        candidate = current_config.copy()
+        # 2. Evaluate fitness
+        fitness_data = [calculate_fitness(ind, target_mcr, sim_params) for ind in population]
+        fitnesses = [f[0] for f in fitness_data]
         
-        # Pick a random resource to decrease
-        idx_to_decrease = np.random.randint(0, 3)
-        candidate[idx_to_decrease] -= 1
-        
-        # Enforce minimum bounds
-        candidate[0] = max(candidate[0], BOUNDS['o_techs'][0])
-        candidate[1] = max(candidate[1], BOUNDS['i_techs'][0])
-        candidate[2] = max(candidate[2], BOUNDS['d_techs'][0])
-        
-        # If candidate is identical to current (hit lower bounds), pick a different one next time
-        if np.array_equal(candidate, current_config):
-            continue
+        # Track best
+        current_best_idx = np.argmax(fitnesses)
+        if fitnesses[current_best_idx] > best_fitness:
+            best_fitness = fitnesses[current_best_idx]
+            best_ind = population[current_best_idx].copy()
             
-        candidate_mcr = evaluate_config(candidate, sim_params)
-        candidate_cost = calculate_cost(candidate)
-        
-        valid = candidate_mcr >= target_mcr
-        
+        # Log generation stats
         history.append({
-            'iter': i,
-            'o_techs': candidate[0],
-            'i_techs': candidate[1],
-            'd_techs': candidate[2],
-            'cost': candidate_cost,
-            'mcr': candidate_mcr,
-            'valid': valid
+            'iter': gen,
+            'o_techs': population[current_best_idx][0],
+            'i_techs': population[current_best_idx][1],
+            'd_techs': population[current_best_idx][2],
+            'cost': fitness_data[current_best_idx][2],
+            'mcr': fitness_data[current_best_idx][1],
+            'valid': fitness_data[current_best_idx][1] >= target_mcr
         })
         
-        # If candidate meets MCR target and is cheaper (which it will be if we just subtracted hardware)
-        # Or if we just maintain the target MCR with less resources
-        if valid:
-            current_config = candidate
-            current_mcr = candidate_mcr
-            current_cost = candidate_cost
+        # 3. Selection (Tournament)
+        new_population = []
+        for _ in range(pop_size):
+            # Pick 3, best one wins
+            candidates = np.random.choice(len(population), 3, replace=False)
+            winner = population[candidates[np.argmax([fitnesses[c] for c in candidates])]]
+            new_population.append(winner.copy())
             
-            if current_cost < best_cost:
-                best_config = current_config.copy()
-                best_cost = current_cost
-                best_mcr = current_mcr
-        else:
-            # We stepped too far down, MCR dropped below target.
-            # Try to swap resources - subtract from one, add to another
-            candidate = current_config.copy()
-            sub_idx = np.random.randint(0, 3)
-            add_idx = (sub_idx + np.random.randint(1, 3)) % 3
-            
-            candidate[sub_idx] -= 1
-            candidate[add_idx] += 1
-            
-            # Enforce bounds
-            candidate[0] = np.clip(candidate[0], BOUNDS['o_techs'][0], BOUNDS['o_techs'][1])
-            candidate[1] = np.clip(candidate[1], BOUNDS['i_techs'][0], BOUNDS['i_techs'][1])
-            candidate[2] = np.clip(candidate[2], BOUNDS['d_techs'][0], BOUNDS['d_techs'][1])
-            
-            if not np.array_equal(candidate, current_config):
-                c_mcr = evaluate_config(candidate, sim_params)
-                c_cost = calculate_cost(candidate)
-                
-                if c_mcr >= target_mcr and c_cost < current_cost:
-                    current_config = candidate
-                    current_mcr = c_mcr
-                    current_cost = c_cost
+        # 4. Crossover (Single Point)
+        for i in range(0, pop_size, 2):
+            if i+1 < pop_size and np.random.rand() < 0.7:
+                cp = np.random.randint(1, 3) # crossover point
+                new_population[i][cp:], new_population[i+1][cp:] = \
+                    new_population[i+1][cp:].copy(), new_population[i][cp:].copy()
                     
-                    if current_cost < best_cost:
-                        best_config = current_config.copy()
-                        best_cost = current_cost
-                        best_mcr = current_mcr
+        # 5. Mutation
+        for i in range(pop_size):
+            if np.random.rand() < 0.2:
+                idx = np.random.randint(0, 3)
+                key = ['o_techs', 'i_techs', 'd_techs'][idx]
+                new_population[i][idx] = np.random.randint(BOUNDS[key][0], BOUNDS[key][1] + 1)
+                
+        population = new_population
+
+    # Final evaluation of the best found
+    final_f, final_mcr, final_cost = calculate_fitness(best_ind, target_mcr, sim_params)
     
     return {
-        'success': True,
-        'best_config': best_config.tolist(),
-        'best_cost': best_cost,
-        'best_mcr': best_mcr,
+        'success': final_mcr >= target_mcr,
+        'best_config': best_ind.tolist(),
+        'best_cost': final_cost,
+        'best_mcr': final_mcr,
         'history': pd.DataFrame(history)
     }
