@@ -108,7 +108,7 @@ flowchart LR
         Phys --> L_phys[Thermodynamic Constraint Loss]
     end
     
-    L_data + L_phys --> Backprop[GPU Backpropagation]
+    L_data & L_phys --> Backprop[GPU Backpropagation]
     Backprop --> MasterModel[Universal Master Model]
     
     MasterModel -->|Output| RUL[Guaranteed Monotonic RUL]
@@ -118,7 +118,7 @@ flowchart LR
 
 ## 🧠 Explainable AI (XAI) Insight Pipeline
 
-In Phase 10, we achieved **Universal Transparency**. The system now shows the "Why" behindEvery prediction.
+In Phase 10, we achieved **Universal Transparency**. The system now shows the "Why" behind **every** prediction.
 
 ```mermaid
 sequenceDiagram
