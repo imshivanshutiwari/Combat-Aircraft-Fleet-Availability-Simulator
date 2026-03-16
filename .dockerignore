@@ -1,0 +1,23 @@
+
+.git
+.agents
+.agent
+.gemini
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.db
+.ipynb_checkpoints
+venv
+env
+.env
+requirements.txt
+*.png
+*.jpg
+*.mp4
+pdf/
+tmp/
+C-MAPSS Data/
+pdf/CMAPSSData/
+logs/

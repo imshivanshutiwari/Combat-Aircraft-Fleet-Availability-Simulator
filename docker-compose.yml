@@ -1,0 +1,15 @@
+
+version: '3.8'
+
+services:
+  ops-center:
+    build: .
+    container_name: fleet-ops-master
+    ports:
+      - "8501:8501"
+      - "5555:5555"
+    volumes:
+      - .:/app
+    environment:
+      - STREAMLIT_THEME_BASE=dark
+    restart: unless-stopped

@@ -43,7 +43,7 @@ st.sidebar.markdown("""
 st.sidebar.markdown("#### SIMULATION PARAMETERS")
 
 use_real_data = st.sidebar.toggle("NASA C-MAPSS Data Params", value=False)
-model_type = st.sidebar.selectbox("Predictive AI Model", ["Standard", "Elite (LSTM)", "SOTA (Transformer)"], index=1)
+model_type = st.sidebar.selectbox("Predictive AI Model", ["Standard", "Elite (LSTM)", "SOTA (Transformer)", "Hybrid (PINN)", "Universal (Master)"], index=1)
 use_ai_predictions = st.sidebar.toggle("Activate AI Core", value=True)
 fleet_size = st.sidebar.slider("Fleet Size", 4, 24, 12, 2)
 sim_days = st.sidebar.slider("Simulation Days", 90, 365, 180)
@@ -162,9 +162,9 @@ render_kpi_strip(result['mcr'], result['fmcr'],
                  mcr_ci_hw, fmcr_ci_hw, fleet_summary)
 
 # ── TABS ────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
     "FLEET STATUS", "TIME SERIES", "SENSITIVITY",
-    "SURGE ANALYSIS", "RESEARCH", "REAL DATA", "AI OPTIMIZATION", "ELITE BENCHMARKING", "REPORT & EXPORT",
+    "SURGE ANALYSIS", "RESEARCH", "REAL DATA", "AI OPTIMIZATION", "ELITE BENCHMARKING", "EXPLAINABLE AI", "REPORT & EXPORT",
 ])
 
 # ── TAB 1: FLEET STATUS ────────────────────────────────────────────
@@ -376,8 +376,27 @@ with tab8:
     from components.benchmarking_view import render_benchmarking_tab
     render_benchmarking_tab()
 
-# ── TAB 9: REPORT & EXPORT ─────────────────────────────────────────
+# ── TAB 9: EXPLAINABLE AI ──────────────────────────────────────────
 with tab9:
+    from components.xai_view import render_xai_tab
+    # Get a sample sequence from the first aircraft's first subsystem for visualization
+    if result['fleet_data'] and len(result['fleet_data']) > 0:
+        sample_ac = result['fleet_data'][0]
+        # Extract sequence from engine subsystem if available
+        if 'engine' in sample_ac['subs']:
+            # We need raw sequence data. 
+            # In simulation, we store history. We'll use a sample sequence from the dataset for consistency.
+            from data.cmapss_loader import load_dataset, DEGRADING_SENSORS
+            train_df, _, _ = load_dataset('FD001')
+            sample_seq = train_df.head(30)[DEGRADING_SENSORS].values
+            render_xai_tab(sample_seq, model_type)
+        else:
+            st.warning("No subsystem data available for XAI visualization.")
+    else:
+        st.warning("Run simulation to generate fleet data for XAI visualization.")
+
+# ── TAB 10: REPORT & EXPORT ─────────────────────────────────────────
+with tab10:
     from utils.report_generator import render_executive_summary
     from utils.export_handler import render_export_panel
 

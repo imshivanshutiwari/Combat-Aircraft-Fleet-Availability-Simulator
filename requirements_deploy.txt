@@ -1,0 +1,23 @@
+
+# Core Frameworks
+streamlit
+pandas
+numpy
+matplotlib
+plotly
+
+# A.I. Engines (Inference Optimized)
+tensorflow-cpu
+torch --index-url https://download.pytorch.org/whl/cpu
+scikit-learn
+joblib
+
+# Logistics & Analysis
+SALib
+
+# Integration & Bridge
+pyzmq
+pygame
+
+# Rendering Utilities
+Pillow
