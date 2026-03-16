@@ -23,12 +23,12 @@ def _health_bar(value, label):
     else:
         fill_class = 'health-fill-crit'
     return (
-        f'<div style="display:flex;align-items:center;gap:4px;">'
-        f'<span style="font-size:0.6rem;color:#7A9CC0;width:24px;">{label}</span>'
+        f'<div style="display:flex;align-items:center;gap:6px;">'
+        f'<span style="font-size:0.75rem;color:#A0C0E0;width:32px;font-weight:700;">{label}</span>'
         f'<div class="health-bar" style="flex:1;">'
         f'<div class="health-fill {fill_class}" style="width:{pct}%;"></div>'
         f'</div>'
-        f'<span style="font-size:0.6rem;color:#7A9CC0;width:24px;">{pct}%</span>'
+        f'<span style="font-size:0.75rem;color:#A0C0E0;width:32px;font-weight:700;">{pct}%</span>'
         f'</div>'
     )
 
@@ -57,21 +57,21 @@ def render_fleet_matrix(fleet):
         afr_h = ac.subs['airframe'].health
 
         cards_html += (
-            f'<div class="military-card {card_class}" style="padding:10px;">'
+            f'<div class="military-card {card_class}" style="padding:12px;">'
             f'<div style="display:flex;justify-content:space-between;align-items:center;">'
-            f'<span style="font-family:monospace;font-size:0.9rem;font-weight:bold;color:#E0E8FF;">'
+            f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:1.1rem;font-weight:bold;color:#FFFFFF;">'
             f'AC-{ac.id:02d}'
             f'</span>'
             f'<span class="status-badge {badge_class}">{badge_label}</span>'
             f'</div>'
-            f'<div style="margin-top:6px;">'
+            f'<div style="margin-top:8px;">'
             f'{_health_bar(eng_h, "ENG")}'
             f'{_health_bar(avi_h, "AVI")}'
             f'{_health_bar(hyd_h, "HYD")}'
             f'{_health_bar(afr_h, "AFR")}'
             f'</div>'
-            f'<div style="display:flex;justify-content:space-between;margin-top:6px;'
-            f'font-size:0.65rem;color:#7A9CC0;">'
+            f'<div style="display:flex;justify-content:space-between;margin-top:8px;'
+            f'font-size:0.8rem;color:#A0C0E0;font-weight:700;">'
             f'<span>{ac.hours:.0f} FH</span>'
             f'<span>{ac.sorties} SORTIES</span>'
             f'</div>'
@@ -103,12 +103,12 @@ def render_maintenance_pipeline(result):
             if tier_events:
                 avg_time = sum(e['down'] for e in tier_events) / len(tier_events)
             st.markdown(f"""
-<div class="military-card" style="border-left:4px solid {color};">
-    <div style="color:#7A9CC0;font-size:0.7rem;letter-spacing:1px;">{label}</div>
-    <div style="font-family:monospace;font-size:1.4rem;color:#E0E8FF;margin:4px 0;">
+<div class="military-card" style="border-left:6px solid {color}; padding: 16px;">
+    <div style="color:#A0C0E0;font-size:0.85rem;letter-spacing:1px;font-weight:700;">{label}</div>
+    <div style="font-family:\'JetBrains Mono\',monospace;font-size:1.6rem;color:#FFFFFF;margin:6px 0;font-weight:700;">
         {count} REPAIRS
     </div>
-    <div style="color:#7A9CC0;font-size:0.65rem;">
+    <div style="color:#A0C0E0;font-size:0.8rem;font-weight:700;">
         Mean downtime: {avg_time:.1f} hrs
     </div>
 </div>
@@ -132,13 +132,13 @@ def render_parts_status(result):
             r = INVENTORY_PARAMS[name]['r']
             color = '#00FF88' if final_stock > r else ('#FFB800' if final_stock > 0 else '#FF3B3B')
             st.markdown(f"""
-<div class="military-card" style="text-align:center;">
-    <div style="color:#7A9CC0;font-size:0.65rem;letter-spacing:1px;">{label}</div>
-    <div style="font-family:monospace;font-size:1.8rem;color:{color};
-                text-shadow:0 0 10px {color};margin:4px 0;">
+<div class="military-card" style="text-align:center; padding: 16px;">
+    <div style="color:#A0C0E0;font-size:0.8rem;letter-spacing:1px;font-weight:700;margin-bottom:8px;">{label}</div>
+    <div style="font-family:\'JetBrains Mono\',monospace;font-size:2.2rem;color:{color};
+                text-shadow:0 0 15px {color};margin:6px 0;font-weight:700;">
         {final_stock}
     </div>
-    <div style="color:#7A9CC0;font-size:0.6rem;">
+    <div style="color:#A0C0E0;font-size:0.75rem;font-weight:700;">
         Reorder at: {r}
     </div>
 </div>

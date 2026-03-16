@@ -18,84 +18,99 @@ def inject_military_css():
         Complete CSS stylesheet.
     """
     return """
-    /* ===== PAGE BACKGROUND ===== */
+    /* ===== GOOGLE FONTS IMPORT ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    /* ===== PAGE BACKGROUND & BASE TYPOGRAPHY ===== */
     .stApp {
-        background-color: #0A0F1A;
-        color: #E0E8FF;
+        background-color: #050A14;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ===== HEADERS & TITLES ===== */
+    h1, h2, h3, .ops-title {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-weight: 700 !important;
+        color: #FFFFFF !important;
+        letter-spacing: 2px !important;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+    }
+    .ops-subtitle {
+        color: #FFB800 !important;
+        font-weight: 700;
+        letter-spacing: 1px;
     }
 
     /* ===== SIDEBAR ===== */
     [data-testid="stSidebar"] {
-        background-color: #060B14;
+        background-color: #02050A;
         border-right: 1px solid #1A3A5C;
     }
     [data-testid="stSidebar"] .stMarkdown h1,
     [data-testid="stSidebar"] .stMarkdown h2,
-    [data-testid="stSidebar"] .stMarkdown h3 {
-        color: #FFB800;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 2px;
-        text-transform: uppercase;
+    [data-testid="stSidebar"] .stMarkdown h3,
+    [data-testid="stSidebar"] .stMarkdown h4 {
+        color: #FFB800 !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 1.1rem !important;
     }
 
     /* ===== METRIC CARDS ===== */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, #0D1B2A 0%, #1B2838 100%);
-        border: 1px solid #1A3A5C;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 0 15px rgba(26, 58, 92, 0.3);
+        background: linear-gradient(135deg, #0A1425 0%, #15253A 100%);
+        border: 1px solid #2A5080;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        font-family: 'Courier New', monospace;
-        font-size: 2.2rem;
-        font-weight: bold;
-        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 2.8rem !important;
+        font-weight: 700 !important;
+        color: #FFFFFF !important;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
     [data-testid="stMetric"] [data-testid="stMetricLabel"] {
-        color: #7A9CC0;
-        font-size: 0.8rem;
-        letter-spacing: 2px;
+        color: #A0C0E0 !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px;
         text-transform: uppercase;
-    }
-    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
-        font-family: 'Courier New', monospace;
+        margin-bottom: 8px;
     }
 
     /* ===== TABS ===== */
     .stTabs [data-baseweb="tab-list"] {
-        background-color: #0D1B2A;
+        background-color: #0A1425;
         border-bottom: 2px solid #1A3A5C;
-        gap: 0;
+        padding: 0 20px;
     }
     .stTabs [data-baseweb="tab"] {
-        color: #7A9CC0;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        padding: 10px 20px;
-        border-bottom: 2px solid transparent;
+        color: #A0C0E0 !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        padding: 15px 25px;
     }
     .stTabs [aria-selected="true"] {
-        color: #FFB800 !important;
-        border-bottom: 2px solid #FFB800 !important;
+        color: #00FF88 !important;
+        border-bottom: 2px solid #00FF88 !important;
     }
 
     /* ===== BUTTONS ===== */
     .stButton > button {
         background: linear-gradient(135deg, #1A3A5C 0%, #2A5080 100%);
-        color: #E0E8FF;
-        border: 1px solid #3A6090;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        border-radius: 4px;
-        transition: all 0.3s ease;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        border: 1px solid #4A70A0;
+        font-family: 'JetBrains Mono', monospace !important;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #2A5080 0%, #3A70A0 100%);
-        box-shadow: 0 0 10px rgba(42, 80, 128, 0.5);
-        border-color: #FFB800;
+        border-color: #00FF88;
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
     }
 
     /* ===== EXECUTE BUTTON (primary) ===== */
@@ -119,6 +134,7 @@ def inject_military_css():
 
     /* ===== DATAFRAMES ===== */
     .stDataFrame {
+        background-color: #0A1425 !important;
         border: 1px solid #1A3A5C;
         border-radius: 4px;
     }
@@ -159,12 +175,13 @@ def inject_military_css():
     /* ===== STATUS BADGES ===== */
     .status-badge {
         display: inline-block;
-        padding: 2px 8px;
-        border-radius: 3px;
-        font-size: 0.75rem;
-        font-family: 'Courier New', monospace;
+        padding: 4px 12px !important;
+        border-radius: 4px !important;
+        font-size: 0.85rem !important;
+        font-family: 'JetBrains Mono', monospace !important;
         font-weight: bold;
         letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
     .badge-fmc { background: #00FF88; color: #0A0F1A; }
     .badge-pmc { background: #FFB800; color: #0A0F1A; }
@@ -189,19 +206,24 @@ def inject_military_css():
     .health-fill-warn { background: linear-gradient(90deg, #CC8800, #FFB800); }
     .health-fill-crit { background: linear-gradient(90deg, #CC2222, #FF3B3B); }
 
-    /* ===== RECOMMENDATION BOX ===== */
-    .military-intel {
-        background: #0D1B2A;
-        border: 1px solid #FFB800;
-        border-left: 4px solid #FFB800;
+    /* ===== MILITARY INTEL / ALERT BOXES ===== */
+    .military-intel, .stAlert {
+        background: rgba(10, 20, 37, 0.95) !important;
+        border: 1px solid #FFB800 !important;
+        border-left: 6px solid #FFB800 !important;
         border-radius: 4px;
         padding: 16px;
         margin: 16px 0;
+        color: #FFFFFF !important;
+        font-size: 1.05rem !important;
+        line-height: 1.6 !important;
     }
     .military-intel h4 {
-        color: #FFB800;
+        color: #FFB800 !important;
         font-family: 'Courier New', monospace;
         margin-top: 0;
+        font-size: 1.2rem !important;
+        margin-bottom: 12px !important;
     }
 
     /* ===== KEY FINDING BOX ===== */
@@ -248,9 +270,10 @@ def inject_military_css():
         color: #E0E8FF;
     }
 
-    /* ===== SELECTBOX ===== */
-    [data-baseweb="select"] {
-        background-color: #0D1B2A;
+    /* ===== SELECTBOX & INPUTS ===== */
+    div[data-baseweb="select"], div[data-baseweb="input"] {
+        background-color: #0A1425 !important;
+        border: 1px solid #1A3A5C !important;
     }
 
     /* ===== EXPANDER ===== */
@@ -288,5 +311,21 @@ def inject_military_css():
         justify-content: center;
         cursor: pointer;
         box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    
+    /* Global scrollbar for premium feel */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #050A14;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #1A3A5C;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #2A5080;
     }
     """

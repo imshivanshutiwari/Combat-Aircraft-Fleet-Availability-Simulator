@@ -46,7 +46,7 @@ def render_research_heatmap(results_df):
         xref='paper', yref='paper',
         x=0.5, y=1.05,
         showarrow=False,
-        font={'color': '#FFB800', 'size': 12, 'family': 'Courier New'},
+        font={'color': '#FFB800', 'size': 14, 'family': 'JetBrains Mono', 'weight': 'bold'},
     )
 
     fig.update_layout(
@@ -103,9 +103,9 @@ def render_threshold_curve(min_ratios):
     fig.add_annotation(
         text=f"SUPERLINEAR SCALING: {eq}",
         xref='paper', yref='paper',
-        x=0.5, y=-0.18,
+        x=0.5, y=-0.22,
         showarrow=False,
-        font={'color': '#FFB800', 'size': 11, 'family': 'Courier New'},
+        font={'color': '#00FF88', 'size': 13, 'family': 'JetBrains Mono', 'weight': 'bold'},
     )
 
     fig.update_layout(
@@ -122,16 +122,16 @@ def render_threshold_curve(min_ratios):
 def render_key_finding(finding):
     """Render the key finding highlight box."""
     st.markdown(f"""
-    <div class="key-finding">
-        <div style="color:#7A9CC0;font-size:0.8rem;letter-spacing:3px;margin-bottom:12px;">
+    <div class="key-finding" style="padding: 32px;">
+        <div style="color:#A0C0E0;font-size:1rem;letter-spacing:3px;margin-bottom:16px;font-weight:700;">
             KEY RESEARCH FINDING
         </div>
-        <div class="number">{finding['ratio']:.1f}</div>
-        <div style="color:#7A9CC0;font-size:0.9rem;margin-top:8px;">
+        <div class="number" style="font-size:4rem; margin: 12px 0;">{finding['ratio']:.1f}</div>
+        <div style="color:#A0C0E0;font-size:1.1rem;margin-top:12px;font-weight:700;">
             MINIMUM TECH:AIRCRAFT RATIO FOR {finding['fleet_size']}-AIRCRAFT FLEET
         </div>
-        <div style="color:#E0E8FF;font-size:0.8rem;margin-top:12px;
-                    padding:8px;background:rgba(26,58,92,0.3);border-radius:4px;">
+        <div style="color:#FFFFFF;font-size:1.05rem;margin-top:16px;
+                    padding:16px;background:rgba(26,58,92,0.4);border:1px solid #1A3A5C;border-radius:6px;line-height:1.6;">
             {finding['text']}
         </div>
     </div>

@@ -26,6 +26,26 @@ OP_SETTINGS = ['op1', 'op2', 'op3']
 ROBUST_FEATURES = OP_SETTINGS + DEGRADING_SENSORS
 ROBUST_FEATURES_COUNT = len(ROBUST_FEATURES)
 
+# Scaling constants (approximate for C-MAPSS FD001/FD004)
+# Used to ensure live inference is on the same scale as training
+S_MIN = np.array([641.2, 1571.0, 1382.2, 549.8, 2387.9, 9021.4, 46.8, 518.6, 2387.9, 8064.6, 8.3, 388.0, 38.0, 22.8])
+S_MAX = np.array([644.5, 1601.3, 1435.8, 556.0, 2389.0, 9170.0, 48.5, 524.3, 2390.4, 8243.0, 8.7, 397.0, 40.0, 23.6])
+
+def normalize_input(X):
+    """Deep Learning normalization for 14 or 17 feature inputs."""
+    # Ensure X is numpy for slicing
+    X = np.array(X)
+    if X.shape[-1] == 17:
+        # Scale 3 OP settings
+        OP_MIN = np.array([0.0, 0.0, 0.0])
+        OP_MAX = np.array([42.0, 0.84, 100.0])
+        X_op = (X[..., :3] - OP_MIN) / (OP_MAX - OP_MIN + 1e-9)
+        # Scale 14 sensors
+        X_s = (X[..., 3:] - S_MIN) / (S_MAX - S_MIN + 1e-9)
+        return np.concatenate([X_op, X_s], axis=-1)
+    # Just 14 sensors
+    return (X - S_MIN) / (S_MAX - S_MIN + 1e-9)
+
 _MODEL_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'rul_lstm_model.keras'
@@ -142,6 +162,7 @@ class UniversalTransformerPT(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(input_size, 64),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Linear(64, 1)
         )
         
@@ -255,29 +276,41 @@ def get_cached_model(model_type='LSTM'):
 
 def predict_rul(sequence_data, model_type='LSTM'):
     """Multi-model prediction anchor."""
+    X_raw = np.array(sequence_data)
+    
     # Standard mode fallback (random forest simulation)
     if model_type == 'Standard':
-        # Simple health-based RUL proxy for 'Standard' baseline
-        health = 1.0 - sequence_data[-1][0] # use first sensor as health proxy
-        return np.array([health * 150.0])
+        # Use s11 (index 6 if 14, 9 if 17)
+        feat_idx = 9 if X_raw.shape[-1] == 17 else 6
+        s11_val = X_raw[-1][feat_idx]
+        s11_norm = (s11_val - 46.8) / (48.5 - 46.8 + 1e-9)
+        # Standard model follows a quadratic decay approximation
+        rul_pred = (1.0 - s11_norm) * 160.0 + 10.0
+        return np.array([max(1, rul_pred)])
 
     if model_type == 'Universal (Master)':
         model = get_universal_model()
-        # Expect sequence_data to have ROBUST_FEATURES (17)
-        # If it only has 14, we pad with default OP settings (0.0)
-        X_raw = np.array(sequence_data)
-        if X_raw.shape[1] == FEATURES_COUNT:
-            # Pad with 3 zeros for op1, op2, op3
+        # Master wants 17 (3 OP + 14 sensors)
+        if X_raw.shape[-1] == FEATURES_COUNT: # 14
             padding = np.zeros((X_raw.shape[0], 3))
-            X_raw = np.hstack([padding, X_raw])
+            X_inp = np.hstack([padding, X_raw])
+        else:
+            X_inp = X_raw
         
-        X = torch.tensor(X_raw, dtype=torch.float32).unsqueeze(0)
+        X_scaled = normalize_input(X_inp)
+        X = torch.tensor(X_scaled, dtype=torch.float32).unsqueeze(0)
         with torch.no_grad():
             return model(X).numpy().flatten()
 
+    # For other models (LSTM, Transformer, Hybrid) - use ONLY 14 sensors
+    if X_raw.shape[-1] == 17:
+        X_inp = X_raw[:, 3:] # trim settings
+    else:
+        X_inp = X_raw
+
     model = get_cached_model(model_type)
-    X = np.array(sequence_data).reshape(1, SEQUENCE_LENGTH, FEATURES_COUNT)
-    return model(X, training=False).numpy().flatten()
+    X_scaled = normalize_input(X_inp).reshape(1, SEQUENCE_LENGTH, -1)
+    return model(X_scaled, training=False).numpy().flatten()
 
 if __name__ == "__main__":
     train_model()

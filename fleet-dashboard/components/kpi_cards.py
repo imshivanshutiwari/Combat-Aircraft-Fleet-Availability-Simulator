@@ -29,19 +29,19 @@ def render_kpi_strip(mcr, fmcr, mcr_ci_hw, fmcr_ci_hw, fleet_summary):
         badge_class = 'badge-fmc' if mcr_pct >= 75 else ('badge-pmc' if mcr_pct >= 60 else 'badge-nmc')
 
         st.markdown(f"""
-<div class="military-card">
-    <div style="color:#7A9CC0;font-size:0.75rem;letter-spacing:2px;">
+<div class="military-card" style="padding: 20px;">
+    <div style="color:#A0C0E0;font-size:0.95rem;letter-spacing:2px;font-weight:700;margin-bottom:8px;">
         MISSION CAPABLE RATE
     </div>
-    <div style="font-family:monospace;font-size:2.5rem;font-weight:bold;
-                color:{color};text-shadow:0 0 15px {color};">
+    <div style="font-family:\'JetBrains Mono\',monospace;font-size:3.2rem;font-weight:bold;
+                color:{color};text-shadow:0 0 20px {color};">
         {mcr_pct:.1f}%
     </div>
-    <div style="color:#7A9CC0;font-size:0.75rem;">
+    <div style="color:#A0C0E0;font-size:0.9rem;font-weight:700;margin-top:4px;">
         ± {mcr_ci_hw*100:.1f}% (95% CI)
     </div>
-    <div style="margin-top:8px;">
-        <span class="status-badge {badge_class}">{status}</span>
+    <div style="margin-top:12px;">
+        <span class="status-badge {badge_class}" style="font-size:1rem; padding:6px 16px;">{status}</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -51,15 +51,15 @@ def render_kpi_strip(mcr, fmcr, mcr_ci_hw, fmcr_ci_hw, fleet_summary):
         fcolor = '#00FF88' if fmcr_pct >= 75 else ('#FFB800' if fmcr_pct >= 60 else '#FF3B3B')
 
         st.markdown(f"""
-<div class="military-card">
-    <div style="color:#7A9CC0;font-size:0.75rem;letter-spacing:2px;">
+<div class="military-card" style="padding: 20px;">
+    <div style="color:#A0C0E0;font-size:0.95rem;letter-spacing:2px;font-weight:700;margin-bottom:8px;">
         FULL MISSION CAPABLE RATE
     </div>
-    <div style="font-family:monospace;font-size:2.5rem;font-weight:bold;
-                color:{fcolor};text-shadow:0 0 15px {fcolor};">
+    <div style="font-family:\'JetBrains Mono\',monospace;font-size:3.2rem;font-weight:bold;
+                color:{fcolor};text-shadow:0 0 20px {fcolor};">
         {fmcr_pct:.1f}%
     </div>
-    <div style="color:#7A9CC0;font-size:0.75rem;">
+    <div style="color:#A0C0E0;font-size:0.9rem;font-weight:700;margin-top:4px;">
         ± {fmcr_ci_hw*100:.1f}% (95% CI)
     </div>
 </div>
@@ -89,14 +89,14 @@ def render_kpi_strip(mcr, fmcr, mcr_ci_hw, fmcr_ci_hw, fleet_summary):
                 bar_html += f'<div style="width:{pct}%;background:{color};height:24px;display:inline-block;text-align:center;font-size:0.65rem;line-height:24px;color:#0A0F1A;font-weight:bold;">{label}:{count}</div>'
 
         st.markdown(f"""
-<div class="military-card">
-    <div style="color:#7A9CC0;font-size:0.75rem;letter-spacing:2px;">
+<div class="military-card" style="padding: 20px;">
+    <div style="color:#A0C0E0;font-size:0.95rem;letter-spacing:2px;font-weight:700;margin-bottom:8px;">
         FLEET STATUS BREAKDOWN
     </div>
-    <div style="margin-top:12px;display:flex;border-radius:4px;overflow:hidden;">
+    <div style="margin-top:16px;display:flex;border-radius:6px;overflow:hidden;border:1px solid #1A3A5C;">
         {bar_html}
     </div>
-    <div style="color:#7A9CC0;font-size:0.7rem;margin-top:8px;">
+    <div style="color:#A0C0E0;font-size:0.85rem;margin-top:12px;font-weight:700;">
         {total} AIRCRAFT | {fmc} READY FOR TASKING
     </div>
 </div>
