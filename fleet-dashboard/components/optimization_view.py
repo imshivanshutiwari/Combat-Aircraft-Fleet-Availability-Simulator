@@ -104,25 +104,25 @@ def render_optimization_tab(sim_params):
             )
         )
         
-        fig.update_layout(
-            **get_dark_template(),
-            title="SOLVER TRAJECTORY — COST VS MCR",
-            xaxis=dict(title="Solver Iteration"),
-            yaxis=dict(
-                title="Annual Manpower Cost ($)",
-                titlefont=dict(color="#FF3B3B"),
-                tickfont=dict(color="#FF3B3B")
-            ),
-            yaxis2=dict(
-                title="Mission Capable Rate (%)",
-                titlefont=dict(color="#00FF88"),
-                tickfont=dict(color="#00FF88"),
-                overlaying="y",
-                side="right",
-                range=[40, 100]
-            ),
-            legend=dict(x=0.01, y=0.99),
-            height=400
+        layout_args = get_dark_template()
+        layout_args["title"] = "SOLVER TRAJECTORY — COST VS MCR"
+        layout_args["xaxis"].update({"title": "Solver Iteration"})
+        layout_args["yaxis"].update({
+            "title": "Annual Manpower Cost ($)",
+            "titlefont": dict(color="#FF3B3B"),
+            "tickfont": dict(color="#FF3B3B")
+        })
+        layout_args["yaxis2"] = dict(
+            title="Mission Capable Rate (%)",
+            titlefont=dict(color="#00FF88"),
+            tickfont=dict(color="#00FF88"),
+            overlaying="y",
+            side="right",
+            range=[40, 100]
         )
+        layout_args["legend"].update(dict(x=0.01, y=0.99))
+        layout_args["height"] = 400
+        
+        fig.update_layout(**layout_args)
         
         st.plotly_chart(fig, use_container_width=True)

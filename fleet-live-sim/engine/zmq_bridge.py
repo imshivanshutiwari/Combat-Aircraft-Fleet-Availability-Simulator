@@ -13,7 +13,8 @@ class CommandSubscriber:
     def __init__(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.connect(f"tcp://localhost:{BRIDGE_PORT}")
+        # Subscriber binds so the persistent Pygame window owns the port
+        self.socket.bind(f"tcp://*:{BRIDGE_PORT}")
         self.socket.setsockopt_string(zmq.SUBSCRIBE, "") # Subscribe to all
         
         # Make the socket non-blocking

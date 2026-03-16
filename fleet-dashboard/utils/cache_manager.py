@@ -7,7 +7,7 @@ from simulation.engine import run_single, run_monte_carlo
 @st.cache_data(show_spinner=False)
 def cached_single_run(fleet_size, o_techs, i_techs, d_techs,
                       sortie_interval, sim_days, surge_start,
-                      surge_dur, seed, use_real_data=False, use_ai_predictions=False):
+                      surge_dur, seed, use_real_data=False, use_ai_predictions=False, model_type='Elite (LSTM)'):
     """
     Cached single simulation run.
 
@@ -18,7 +18,7 @@ def cached_single_run(fleet_size, o_techs, i_techs, d_techs,
         d_techs=d_techs, sortie_interval=sortie_interval,
         sim_days=sim_days, surge_start=surge_start,
         surge_dur=surge_dur, seed=seed, use_real_data=use_real_data,
-        use_ai_predictions=use_ai_predictions
+        use_ai_predictions=use_ai_predictions, model_type=model_type
     )
     # Strip non-serializable fleet objects — extract key data
     fleet_data = []
@@ -50,7 +50,7 @@ def cached_single_run(fleet_size, o_techs, i_techs, d_techs,
 @st.cache_data(show_spinner=False)
 def cached_monte_carlo(n_reps, fleet_size, o_techs, i_techs, d_techs,
                        sortie_interval, sim_days, surge_start,
-                       surge_dur, seed, use_real_data=False, use_ai_predictions=False):
+                       surge_dur, seed, use_real_data=False, use_ai_predictions=False, model_type='Elite (LSTM)'):
     """Cached Monte Carlo runs. Returns summary DataFrame."""
     mc_df, all_results = run_monte_carlo(
         n_reps=n_reps,
@@ -58,7 +58,7 @@ def cached_monte_carlo(n_reps, fleet_size, o_techs, i_techs, d_techs,
         d_techs=d_techs, sortie_interval=sortie_interval,
         sim_days=sim_days, surge_start=surge_start,
         surge_dur=surge_dur, seed=seed, use_real_data=use_real_data,
-        use_ai_predictions=use_ai_predictions
+        use_ai_predictions=use_ai_predictions, model_type=model_type
     )
     # Only return serializable data
     kpi_dfs = [r['kpi_df'] for r in all_results]

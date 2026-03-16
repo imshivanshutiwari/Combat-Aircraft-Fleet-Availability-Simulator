@@ -14,7 +14,8 @@ class CommandPublisher:
     def __init__(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind(f"tcp://*:{BRIDGE_PORT}")
+        # Publisher connects to avoid Streamlit Address In Use bugs on hot reload
+        self.socket.connect(f"tcp://localhost:{BRIDGE_PORT}")
         
     def send_command(self, cmd_type):
         """Broadcast command to all tactical displays."""
@@ -26,7 +27,8 @@ class CommandSubscriber:
     def __init__(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.connect(f"tcp://localhost:{BRIDGE_PORT}")
+        # Subscriber binds so the persistent Pygame window owns the port
+        self.socket.bind(f"tcp://*:{BRIDGE_PORT}")
         self.socket.setsockopt_string(zmq.SUBSCRIBE, "") # Subscribe to all
         
         # Make the socket non-blocking
