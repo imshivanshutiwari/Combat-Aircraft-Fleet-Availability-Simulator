@@ -192,7 +192,8 @@ To host this immediately on Streamlit Community Cloud for free:
 2. Go to [share.streamlit.io](https://share.streamlit.io/) and click **New App**.
 3. Select your repository and branch.
 4. Set the **Main file path** to: `fleet-dashboard/app.py`
-5. Click **Deploy**. The platform will automatically install dependencies from `requirements.txt` and launch the Universal Master Dashboard.
+5. **CRITICAL:** Click on **Advanced settings...** (below the main file path) and set **Python version to 3.11**. Streamlit's default experimental version (3.14) will fail to install TensorFlow.
+6. Click **Deploy**. The platform will automatically install dependencies from `requirements.txt` and launch the Universal Master Dashboard.
 
 ---
 
